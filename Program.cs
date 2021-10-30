@@ -3,6 +3,8 @@ using System.IO;
 using System.Text;
 using zIinz_3_K35_Inf.Classes;
 using zIinz_3_K35_Inf.Classes.Business;
+using zIinz_3_K35_Inf.Classes.Exceptions;
+using zIinz_3_K35_Inf.Classes.Network;
 
 namespace zIinz_3_K35_Inf
 {
@@ -14,17 +16,49 @@ namespace zIinz_3_K35_Inf
 
             using var log = Log.DEB("Program", "Main");
 
+            int iNetworkDataSize = 48;
+
             log.PR_DEB("początek działania naszego cudownego programu XD");
             log.PR_DEV("a to jest tryb developerski - chwilowo zapewne nie będzie widoczny :P");
-            
-            string sXmlString = @"<User xmlns=""http://schemas.datacontract.org/2004/07/zIinz_3_K35_Inf.Classes.Business"" xmlns:i=""http://www.w3.org/2001/XMLSchema-instance""><Login>Jacek</Login><Password>12jacek34</Password><Permission>1</Permission><Response><ResponseCode>777</ResponseCode><ResponseString>Chyba działa :-)</ResponseString></Response></User>";
 
-            User user = new User();
+            do
+            {
 
-            user.FromXml(new MemoryStream(Encoding.UTF8.GetBytes(sXmlString)));
+                try
+                {
+                    string sXmlString = @"<User xmlns=""http://schemas.datacontract.org/2004/07/zIinz_3_K35_Inf.Classes.Business"" xmlns:i=""http://www.w3.org/2001/XMLSchema-instance""><Login>Jacek</Login><Password>12jacek34</Password><Permission>1</Permission><Response><ResponseCode>777</ResponseCode><ResponseString>Chyba działa :-)</ResponseString></Response></User>";
 
-            log.PR_DEB(user.ToString());
-            
+                    NetworkData obj = new NetworkData(iNetworkDataSize);
+
+                    obj.Buffer = Encoding.UTF8.GetBytes(sXmlString);
+
+                    User user = new User();
+
+                    user.FromXml(new MemoryStream(Encoding.UTF8.GetBytes(sXmlString)));
+
+                    log.PR_DEB(user.ToString());
+
+                    break;
+                }
+                catch (NetworkDataBufferIsEmpty e)
+                {
+                    log.PR_DEB($"Wychwycono wyjątek <{e.GetType().Name}>: {e.Message}");
+                    break;
+                }
+                catch (NetworkDataBufferToLarge e)
+                {
+                    log.PR_DEB($"Wychwycono wyjątek <{e.GetType().Name}>: {e.Message}");
+
+                    iNetworkDataSize = e.Length + 1;
+                }
+                catch (Exception e)
+                {
+                    log.PR_DEB($"Wychwycono wyjątek ogólny: {e.Message}");
+                    break;
+                }
+            }
+            while (true);
+
 
             /*
             User user = new User
