@@ -58,5 +58,19 @@ namespace zIinz_3_K35_Inf.Classes.Network
                 Array.Copy(value, m_oBuffer, value.Length);
             }
         }
+
+        public byte[] BufferWithData => Buffer.Take(DataLength()).ToArray();
+
+        public override string ToString()
+        {
+            string sResult = "Buffer=";
+
+            foreach (var oByte in m_oBuffer)
+            {
+                sResult += $"[{oByte}] ";
+            }
+
+            return sResult;
+        }
     }
 }
